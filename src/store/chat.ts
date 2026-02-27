@@ -64,12 +64,12 @@ export const useChatStore = defineStore('chat', () => {
     }
   };
 
-  const addMessage = (sessionId: string, message: Omit<Message, 'id' | 'timestamp'>) => {
+  const addMessage = (sessionId: string, message: Omit<Message, 'id' | 'timestamp'> & { id?: string }) => {
     const session = sessions.value.find((s) => s.id === sessionId);
     if (session) {
       session.messages.push({
         ...message,
-        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        id: message.id || Date.now().toString() + Math.random().toString(36).substr(2, 9),
         timestamp: Date.now(),
       });
       // Update title if it's the first user message

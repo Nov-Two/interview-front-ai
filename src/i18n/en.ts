@@ -56,6 +56,7 @@ export default {
     hasAccount: 'Have an account? Login',
     noAccount: 'No account? Register',
     registerSuccess: 'Registration successful',
+    stopGenerating: 'Stop generating',
   },
   groups: {
     default: 'General',

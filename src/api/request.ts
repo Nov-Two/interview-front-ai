@@ -32,15 +32,26 @@ class Request {
 
     // Response interceptor
     this.instance.interceptors.response.use(
-      (response: AxiosResponse<ApiResponse>) => {
-        const { code, message, data } = response.data;
-        // Assume 200 is success code, adjust based on actual backend
-        if (code === 200) {
-          return data; // Return pure data
-        } else {
-          showToast(message || 'Error');
-          return Promise.reject(new Error(message || 'Error'));
+      (response: AxiosResponse<any>) => {
+        const { status } = response;
+        const resData = response.data;
+        
+        // Check if the backend wraps response in { code, message, data }
+        if (resData && typeof resData.code === 'number') {
+           if (resData.code === 200 || resData.code === 201) {
+             return resData.data;
+           } else {
+             showToast(resData.message || 'Error');
+             return Promise.reject(new Error(resData.message || 'Error'));
+           }
         }
+        
+        // If standard REST response (status 2xx) without wrapper
+        if (status >= 200 && status < 300) {
+          return resData;
+        }
+        
+        return Promise.reject(new Error('Unknown Error'));
       },
       (error: AxiosError) => {
         let message = '';
@@ -99,7 +110,7 @@ class Request {
 // Export a default instance
 const request = new Request({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-  timeout: 10000,
+  // timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },

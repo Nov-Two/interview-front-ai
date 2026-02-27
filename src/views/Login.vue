@@ -177,27 +177,41 @@ const validateConfirmPassword = (val: string) => {
   return val === password.value;
 };
 
-const onSubmit = (values: any) => {
+const onSubmit = async (values: any) => {
   if (!agreed.value) {
     showToast(t('common.agreeRequired'));
     return;
   }
 
-  if (isRegister.value) {
-    // Mock Register
-    if (username.value && password.value) {
-      showToast(t('common.registerSuccess'));
-      // Auto login after register or switch to login? Let's auto login for better UX
-      userStore.login(username.value);
-      router.replace('/');
+  try {
+    if (isRegister.value) {
+      if (username.value && password.value) {
+        await userStore.register({
+          username: username.value,
+          password: password.value,
+          confirmPassword: confirmPassword.value
+        });
+        showToast(t('common.registerSuccess'));
+        // Auto login after register
+        await userStore.login({
+          username: username.value,
+          password: password.value
+        });
+        router.replace('/');
+      }
+    } else {
+      // Login
+      if (username.value && password.value) {
+        await userStore.login({
+          username: username.value,
+          password: password.value
+        });
+        showToast(t('common.loginSuccess'));
+        router.replace('/');
+      }
     }
-  } else {
-    // Login
-    if (username.value && password.value) {
-      userStore.login(username.value);
-      showToast(t('common.loginSuccess'));
-      router.replace('/');
-    }
+  } catch (error) {
+    console.error(error);
   }
 };
 </script>

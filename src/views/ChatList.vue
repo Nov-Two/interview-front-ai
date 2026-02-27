@@ -93,15 +93,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useChatStore } from '@/store';
+import { useChatStore, useUserStore } from '@/store';
 import { showConfirmDialog, showToast } from 'vant';
 import { useI18n } from 'vue-i18n';
 import ChatListItem from '@/components/chat/ChatListItem.vue';
+import { aiApi } from '@/api/ai';
 
 const router = useRouter();
 const chatStore = useChatStore();
+const userStore = useUserStore();
 const { t } = useI18n();
 const activeGroup = ref('default');
 const isMergeMode = ref(false);
@@ -112,6 +114,61 @@ const mergeFolderName = ref('');
 const showRenameDialog = ref(false);
 const renameValue = ref('');
 const renameId = ref('');
+
+onMounted(async () => {
+  if (userStore.isLoggedIn()) {
+    try {
+      const history = await aiApi.getHistory();
+      console.log('Chat history:', history);
+      
+      if (Array.isArray(history) && history.length > 0) {
+        // Map history to chat sessions
+        // Assuming history is an array of messages or sessions. 
+        // Based on the screenshot, it seems to be a flat array of messages: {id, question, answer, ...}
+        
+        // We need to group these into sessions or create one big session for "History"
+        // Let's create a session for each history item or group them.
+        // For simplicity, let's create a "History" session if not exists, or populate sessions based on some ID.
+        
+        // Strategy: Create a session for each Q&A pair or group them.
+        // Let's assume we want to show them as individual chats for now, or one big "History" chat.
+        // Given the structure {id, question, answer}, let's create a session for each.
+        
+        history.forEach((item: any) => {
+          // Check if session already exists (maybe using item.id as session id)
+          const existingSession = chatStore.sessions.find(s => s.id === String(item.id));
+          if (!existingSession) {
+            const newSession = chatStore.createSession(item.question || 'History Chat', 'default');
+             // Overwrite ID to match backend if needed, or keep local ID. 
+             // If we want to persist backend ID:
+             newSession.id = String(item.id); 
+             // But createSession unshifts to array. Let's modify it.
+             
+             // Add User Question
+             if (item.question) {
+                chatStore.addMessage(newSession.id, {
+                  role: 'user',
+                  content: item.question,
+                  type: 'text'
+                });
+             }
+             
+             // Add AI Answer
+             if (item.answer) {
+                chatStore.addMessage(newSession.id, {
+                  role: 'assistant',
+                  content: item.answer,
+                  type: 'text'
+                });
+             }
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+    }
+  }
+});
 
 const currentFolder = computed(() => {
   if (!currentFolderId.value) return null;

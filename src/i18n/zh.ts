@@ -56,6 +56,7 @@ export default {
     hasAccount: '已有账号？去登录',
     noAccount: '没有账号？去注册',
     registerSuccess: '注册成功',
+    stopGenerating: '停止回答',
   },
   groups: {
     default: '通用',
