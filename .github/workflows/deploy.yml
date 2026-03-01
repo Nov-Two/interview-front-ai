@@ -48,7 +48,7 @@ jobs:
             docker run -d \
               --name interview-front-ai \
               --restart always \
-              -p 8080:80 \
+              -p 3001:80 \
               interview-front-ai:latest
               
             # Clean up unused images (dangling)
