@@ -24,6 +24,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  base: '/interview_ai/',
   server: {
     proxy: {
       '/api': {

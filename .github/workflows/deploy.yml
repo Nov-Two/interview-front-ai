@@ -1,0 +1,55 @@
+name: Deploy to Server (Direct Build)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: root
+          password: ${{ secrets.PASSWORD }}
+          source: "."
+          target: "/root/interview-front-ai"
+          rm: true
+
+      - name: Build and Run on Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: root
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd /root/interview-front-ai
+            
+            # Build image locally
+            docker build -t interview-front-ai:latest .
+            
+            # Stop old container if running
+            if [ "$(docker ps -q -f name=interview-front-ai)" ]; then
+                docker stop interview-front-ai
+            fi
+            
+            # Remove old container if exists
+            if [ "$(docker ps -aq -f name=interview-front-ai)" ]; then
+                docker rm interview-front-ai
+            fi
+            
+            # Run new container
+            docker run -d \
+              --name interview-front-ai \
+              --restart always \
+              -p 80:80 \
+              interview-front-ai:latest
+              
+            # Clean up unused images (dangling)
+            docker image prune -f
