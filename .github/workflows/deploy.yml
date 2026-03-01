@@ -43,11 +43,11 @@ jobs:
             docker stop interview-front-ai || true
             docker rm interview-front-ai || true
             
-            # Run new container
+            # Run new container with Host Network Mode to bypass NAT issues
             docker run -d \
               --name interview-front-ai \
               --restart always \
-              -p 3001:80 \
+              --network host \
               interview-front-ai:latest
 
             # Wait for container to start
