@@ -34,15 +34,14 @@ jobs:
             # Build image locally
             docker build -t interview-front-ai:latest .
             
-            # Stop old container if running
-            if [ "$(docker ps -q -f name=interview-front-ai)" ]; then
-                docker stop interview-front-ai
-            fi
-            
-            # Remove old container if exists
-            if [ "$(docker ps -aq -f name=interview-front-ai)" ]; then
-                docker rm interview-front-ai
-            fi
+            # Open firewall ports just in case (ufw/firewalld/iptables)
+            ufw allow 3001/tcp || true
+            firewall-cmd --zone=public --add-port=3001/tcp --permanent && firewall-cmd --reload || true
+            iptables -I INPUT -p tcp --dport 3001 -j ACCEPT || true
+
+            # Stop and remove old container
+            docker stop interview-front-ai || true
+            docker rm interview-front-ai || true
             
             # Run new container
             docker run -d \
@@ -50,6 +49,17 @@ jobs:
               --restart always \
               -p 3001:80 \
               interview-front-ai:latest
+
+            # Wait for container to start
+            sleep 5
+
+            # Diagnostic: Check if port is listening
+            echo "=== Port 3001 Listener ==="
+            netstat -tulpn | grep 3001 || echo "Port 3001 not found in netstat"
+
+            # Diagnostic: Local connectivity test
+            echo "=== Local Curl Test ==="
+            curl -v http://127.0.0.1:3001/interview_ai/ || echo "Local curl failed"
               
             # Clean up unused images (dangling)
             docker image prune -f
