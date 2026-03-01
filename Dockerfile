@@ -3,15 +3,20 @@ FROM node:20-alpine as build-stage
 
 WORKDIR /app
 
+# Use Taobao mirror for faster installation in China
+RUN npm config set registry https://registry.npmmirror.com/
+
 COPY package.json pnpm-lock.yaml* ./
 
 # Install pnpm
 RUN npm install -g pnpm
+RUN pnpm config set registry https://registry.npmmirror.com/
 
 RUN pnpm install
 
 COPY . .
 
+# Build the app
 RUN pnpm build
 
 # Production stage
