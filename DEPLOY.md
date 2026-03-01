@@ -52,13 +52,16 @@ systemctl enable docker
 
 部署成功后，访问地址保持不变：
 
-*   **前端页面**: [http://8.134.131.208/interview_ai](http://8.134.131.208/interview_ai)
+*   **前端页面**: [http://8.134.131.208:8080/interview_ai](http://8.134.131.208:8080/interview_ai)
 *   **后端 API**: Nginx 会自动将 `/api/` 请求代理到 `http://8.134.131.208:3000/api/`。
 
 ## 6. 常见问题
+
+**Q: 为什么是 8080 端口？**
+A: 因为服务器的 80 端口已经被其他应用（如 Mother-like Pronunciation）占用了，所以我们将前端服务迁移到了 8080 端口。
 
 **Q: 为什么部署时间变长了？**
 A: 因为构建过程（npm install, npm build）现在是在你的服务器上进行的，而不是在 GitHub 的云端 Runner 上。如果服务器性能较低，构建可能会慢一些。但这样省去了上传下载镜像的时间和 Docker Hub 配置。
 
 **Q: 服务器空间不足？**
-A: 脚本中包含 `docker image prune -f`，每次部署后会自动清理未使用的旧镜像。构建过程产生的临时文件位于 `/root/interview-front-ai`，每次部署时会被覆盖更新。
+A: 脚本中包含 `docker image prune -f`，每次部署后会自动清理未使用的旧镜像。构建过程产生的临时文件位于 `/home/interview-front-ai`，每次部署时会被覆盖更新。
