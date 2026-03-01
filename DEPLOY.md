@@ -7,7 +7,7 @@
 
 新的部署流程如下：
 1.  GitHub Actions 检出代码。
-2.  通过 SCP 将代码文件复制到服务器临时目录 (`/root/interview-front-ai`)。
+2.  通过 SCP 将代码文件复制到服务器目录 (`/home/interview-front-ai`)。
 3.  通过 SSH 在服务器上执行 `docker build` 构建镜像。
 4.  停止旧容器，启动新容器。
 

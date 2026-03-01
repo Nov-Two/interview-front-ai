@@ -19,7 +19,7 @@ jobs:
           username: root
           password: ${{ secrets.PASSWORD }}
           source: "."
-          target: "/root/interview-front-ai"
+          target: "/home/interview-front-ai"
           rm: true
 
       - name: Build and Run on Server
@@ -29,7 +29,7 @@ jobs:
           username: root
           password: ${{ secrets.PASSWORD }}
           script: |
-            cd /root/interview-front-ai
+            cd /home/interview-front-ai
             
             # Build image locally
             docker build -t interview-front-ai:latest .
