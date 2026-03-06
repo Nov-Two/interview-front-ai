@@ -5,10 +5,8 @@
     <div class="flex-shrink-0 px-4 py-3 bg-[#f6f6f8cc] dark:bg-[#101622cc] backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b] flex flex-col gap-4">
       <!-- Top Bar -->
       <div class="flex items-center justify-between h-11">
-        <button class="w-8 h-8 rounded-full flex items-center justify-center bg-transparent active:bg-gray-200 dark:active:bg-white/10">
-           <!-- History Icon -->
-           <img src="@/assets/icons/history.svg" class="w-5 h-5 dark:invert opacity-70" alt="" onerror="this.style.display='none'"/>
-           <van-icon name="clock-o" size="20" class="text-gray-700 dark:text-gray-300" v-if="true" />
+        <button @click="themeStore.toggleTheme" class="w-8 h-8 rounded-full flex items-center justify-center bg-transparent active:bg-gray-200 dark:active:bg-white/10 transition-colors">
+           <van-icon :name="themeStore.isDark ? 'sunny-o' : 'moon-o'" size="20" class="text-gray-700 dark:text-gray-300" />
         </button>
         <span class="text-lg font-medium text-[#0f172a] dark:text-[#f1f5f9]">历史记录</span>
         <button class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600 rounded-full shadow-lg shadow-blue-500/30">
@@ -131,13 +129,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useChatStore, useUserStore } from '@/store';
+import { useChatStore, useUserStore, useThemeStore } from '@/store';
 import { aiApi } from '@/api/ai';
 import dayjs from 'dayjs';
 
 const router = useRouter();
 const chatStore = useChatStore();
 const userStore = useUserStore();
+const themeStore = useThemeStore();
 const searchText = ref('');
 
 // Helper to check dates
